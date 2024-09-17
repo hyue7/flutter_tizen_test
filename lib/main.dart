@@ -1,15 +1,20 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tizen_test/connector.dart';
 import 'package:logger/logger.dart';
-import 'package:video_player_plusplayer/video_player.dart';
-import 'package:video_player_plusplayer/video_player_platform_interface.dart';
 import 'package:dio/dio.dart';
+import 'package:video_player_avplay/video_player.dart';
+import 'package:video_player_avplay/video_player_platform_interface.dart';
+
+class MyLogFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    return true;
+  }
+}
 
 void main() {
-  const String defaultAuth =
-      String.fromEnvironment('defaultAuth', defaultValue: '');
+  const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
   runApp(
     const MaterialApp(
       home: _App(
@@ -49,7 +54,9 @@ class InputWidget extends StatefulWidget {
 class _InputWidgetState extends State<InputWidget> {
   Connector connector = const Connector(pin: '');
   late TextEditingController textController;
-  final logger = Logger();
+  final logger = Logger(
+    filter: MyLogFilter(),
+  );
 
   @override
   void initState() {
@@ -67,7 +74,7 @@ class _InputWidgetState extends State<InputWidget> {
                 children: [
                   TextFormField(
                     controller: textController,
-                    autofocus: true,
+                    autofocus: false,
                     textInputAction: TextInputAction.next,
                     maxLength: 20,
                     decoration: const InputDecoration(
@@ -76,10 +83,10 @@ class _InputWidgetState extends State<InputWidget> {
                     ),
                   ),
                   ElevatedButton(
+                    autofocus: true,
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
                       minimumSize: const Size(150, 40),
                     ),
                     child: const Text(
@@ -87,8 +94,7 @@ class _InputWidgetState extends State<InputWidget> {
                     ),
                     onPressed: () {
                       setState(() {
-                        connector =
-                            connector.copyWith(pin: textController.text);
+                        connector = connector.copyWith(pin: textController.text);
                       });
                     },
                   ),
@@ -97,7 +103,8 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 7,
+            length: 8,
+            initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
               appBar: AppBar(
@@ -105,18 +112,6 @@ class _InputWidgetState extends State<InputWidget> {
                 bottom: const TabBar(
                   isScrollable: true,
                   tabs: <Widget>[
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 1",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 2",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 3",
-                    ),
                     Tab(
                       icon: Icon(Icons.cloud),
                       text: "Stream 1",
@@ -133,40 +128,38 @@ class _InputWidgetState extends State<InputWidget> {
                       icon: Icon(Icons.cloud),
                       text: "Stream 4",
                     ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 5",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 6",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 7",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 8",
+                    ),
                   ],
                 ),
               ),
               body: TabBarView(
                 children: <Widget>[
                   _DashRomoteVideo(
-                    text:
-                        'Bento4 Packager: FreeToAir DASH with template for segments',
-                    id: '100',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text:
-                        'Bento4 Packager: FreeToAir DASH without segment list',
-                    id: '101',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'Bento4 Packager: DRM DASH - Widevine',
-                    id: '102',
-                    connector: connector,
-                    drm: true,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream FreeToAir',
-                    id: '115',
+                    id: '2366',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream FreeToAir 2',
+                    id: '5',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -174,7 +167,15 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream DRM Widevine',
-                    id: '85',
+                    id: '2361',
+                    connector: connector,
+                    drm: true,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream DRM Widevine 2',
+                    id: '87',
                     connector: connector,
                     drm: true,
                     logger: logger,
@@ -182,7 +183,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Static FreeToAir',
-                    id: '2',
+                    id: '612',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -190,11 +191,27 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH DRM Static',
-                    id: '1',
+                    id: '733',
                     connector: connector,
                     drm: true,
                     logger: logger,
                     ep: 'pvr',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'DASH Low Latency Harmonic Live Stream',
+                    id: '1',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'DASH Akamai Live Stream',
+                    id: '2',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
                   ),
                 ],
               ),
@@ -227,6 +244,7 @@ class _DashRomoteVideo extends StatefulWidget {
 class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   String streamingUrl = '';
   late VideoPlayerController _controller;
+  AppValueNotifier appValueNotifier = AppValueNotifier();
 
   @override
   void initState() {
@@ -242,26 +260,19 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       widget.logger.i('start free to air stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
-        videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true,
-          allowBackgroundPlayback: true,
-        ),
         formatHint: VideoFormat.dash,
       );
     } else {
-      widget.logger.i('start drm protecter stream ${response.url}');
+      widget.logger.i('start drm protected stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
-        videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true,
-          allowBackgroundPlayback: true,
-        ),
         formatHint: VideoFormat.dash,
         drmConfigs: DrmConfigs(
           type: DrmType.widevine,
           licenseCallback: (Uint8List challenge) async {
             final dio = Dio();
             widget.logger.d('send license request to vmx license server...');
+            widget.logger.d('token: ${response.drmToken}');
             return dio
                 .post(
               'https://multidrm.core.verimatrixcloud.net/widevine',
@@ -275,8 +286,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             )
                 .then(
               (response) {
-                widget.logger.d(
-                    'got response from license server - send license key to player');
+                widget.logger.d('got response from license server - send license key to player');
                 return response.data;
               },
             );
@@ -285,47 +295,146 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       );
     }
 
-    _controller.addListener(() {
-      setState(() {});
-    });
-    _controller.setLooping(false);
-    _controller.initialize().then((_) => setState(() {
-          streamingUrl = response.url;
-          _controller.play();
-        }));
+    _controller.addListener(_updateValueListener);
+
+    _controller.initialize().then(
+          (_) => setState(
+            () {
+              streamingUrl = response.url;
+            },
+          ),
+        );
+    _controller.play();
   }
 
   @override
   void dispose() {
+    widget.logger.i('dispose av player...');
     _controller.dispose();
     super.dispose();
   }
 
+  void _updateValueListener() {
+    appValueNotifier.streamInformationUpdateNotifier(
+        data: StreamInformationStatusData(position: _controller.value.position, duration: _controller.value.duration));
+  }
+
+  /* seeking disabled atm
+  void _seekSeconds({required int seconds}) {
+    Duration newPosition =
+        seconds > 0 ? Duration(seconds: _controller.value.position.inSeconds + seconds) : Duration.zero;
+    widget.logger.i('seek to position $newPosition');
+    _controller.seekTo(newPosition);
+  }
+  */
+
   @override
   Widget build(BuildContext context) {
-    return streamingUrl.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.only(top: 20.0),
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+          try {
+            widget.logger.i("try start stream...");
+            _controller.play();
+          } catch (_) {
+            widget.logger.e("play failed -> $_");
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.only(top: 20.0),
+          ),
+          Text(widget.text),
+          /* not needed atm
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Wrap(),
+              ElevatedButton(
+                child: const Text(
+                  'Seek to start',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: 0);
+                },
               ),
-              Text(widget.text),
-              Container(
-                padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
-                child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      VideoPlayer(_controller),
-                      ClosedCaption(text: _controller.value.caption.text),
-                      VideoProgressIndicator(_controller, allowScrubbing: true),
-                    ],
+              ElevatedButton(
+                child: const Text(
+                  'Seek 5s back',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: -5);
+                },
+              ),
+              ElevatedButton(
+                child: const Text(
+                  'Seek 5s forward',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: 5);
+                },
+              ),
+              const Wrap()
+            ],
+          ),*/
+          ValueListenableBuilder(
+            valueListenable: appValueNotifier.valueNotifier,
+            builder: (BuildContext context, dynamic tvalue, Widget? child) {
+              StreamInformationStatusData data = tvalue as StreamInformationStatusData;
+              return Column(
+                children: [
+                  Text('stream duration: ${data.duration.toString()}'),
+                  Text('stream position: ${data.position.toString()}'),
+                ],
+              );
+            },
+          ),
+          streamingUrl.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                  padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        VideoPlayer(_controller),
+                        ClosedCaption(text: _controller.value.caption.text),
+                        VideoProgressIndicator(_controller, allowScrubbing: true),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
+        ],
+      ),
+    );
   }
+}
+
+class StreamInformationStatusData {
+  final Duration position;
+  final DurationRange duration;
+
+  StreamInformationStatusData({
+    required this.position,
+    required this.duration,
+  });
+}
+
+class AppValueNotifier {
+  ValueNotifier<StreamInformationStatusData> valueNotifier = ValueNotifier(StreamInformationStatusData(
+    position: const Duration(seconds: 0),
+    duration: DurationRange(
+      const Duration(seconds: 0),
+      const Duration(seconds: 0),
+    ),
+  ));
+  void streamInformationUpdateNotifier({required StreamInformationStatusData data}) => valueNotifier.value = data;
 }
